@@ -33,6 +33,7 @@ namespace Shop_15.Controllers
 
         // POST
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(Category category)
         {
             if (ModelState.IsValid)
@@ -42,6 +43,42 @@ namespace Shop_15.Controllers
                 return RedirectToAction("Index");
             }
             return View(category);
+        }
+
+        // GET
+        public IActionResult Delete(int? id)
+        {
+            if(id == null || id == 0)
+            {
+                return NotFound();
+            }
+
+            var category = _db.Category.Find(id);
+            if(category == null)
+            {
+                return NotFound();
+            }
+
+            return View(category);
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeletePost(int? id)
+        {
+            var category = _db.Category.Find(id);
+
+            if(category == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                _db.Category.Remove(category);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
         }
     }
 }
