@@ -80,5 +80,36 @@ namespace Shop_15.Controllers
                 return RedirectToAction("Index");
             }
         }
+
+        // GET
+        public IActionResult Edit(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+
+            var category = _db.Category.Find(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            return View(category);
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                _db.Category.Update(category);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(category);
+        }
     }
 }
