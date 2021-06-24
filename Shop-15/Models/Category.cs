@@ -11,8 +11,11 @@ namespace Shop_15.Models
     {
         [Key]
         public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
         [DisplayName("Show Order")]
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Show order must be more then 0")]
         public int ShowOrder { get; set; }
     }
 }
