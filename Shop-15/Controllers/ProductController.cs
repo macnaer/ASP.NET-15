@@ -66,12 +66,14 @@ namespace Shop_15.Controllers
             {
                 var files = HttpContext.Request.Form.Files;
                 string webRootPath = _webHostEnvironment.WebRootPath;
+
+                string upload = webRootPath + ENV.ImagePath;
+                string fileName = Guid.NewGuid().ToString();
+                string extentions = Path.GetExtension(files[0].FileName);
+
+              
                 if (productVM.Product.Id == 0)
                 {
-                    string upload = webRootPath + ENV.ImagePath;
-                    string fileName = Guid.NewGuid().ToString();
-                    string extentions = Path.GetExtension(files[0].FileName);
-
                     using (var fileStream = new FileStream(Path.Combine(upload, fileName + extentions), FileMode.Create))
                     {
                         files[0].CopyTo(fileStream);
@@ -79,11 +81,37 @@ namespace Shop_15.Controllers
 
                     productVM.Product.Image = fileName + extentions;
                     _db.Product.Add(productVM.Product);
-                    _db.SaveChanges();
-                    return RedirectToAction("Index");
                 }
-            }
+                else
+                {
+                    var formObject = _db.Product.AsNoTracking().FirstOrDefault(u => u.Id == productVM.Product.Id);
+                    if(files.Count > 0)
+                    {
+                        var oldFile = Path.Combine(upload, formObject.Image);
+                        if (System.IO.File.Exists(oldFile)){
+                            System.IO.File.Delete(oldFile);
+                        }
 
+                        using (var fileStream = new FileStream(Path.Combine(upload, fileName + extentions), FileMode.Create))
+                        {
+                            files[0].CopyTo(fileStream);
+                        }
+                        productVM.Product.Image = fileName + extentions;
+                    }
+                    else
+                    {
+                        productVM.Product.Image = formObject.Image;
+                    }
+                    _db.Product.Update(productVM.Product);
+                }
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            productVM.CategorySelectList = _db.Category.Select(i => new SelectListItem
+            {
+                Text = i.Name,
+                Value = i.Id.ToString()
+            });
             return View(productVM);
         }
     }
