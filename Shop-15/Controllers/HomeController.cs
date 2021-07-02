@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Shop_15.Data;
 using Shop_15.Models;
 using Shop_15.Models.ViewModels;
+using Shop_15.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -35,11 +37,43 @@ namespace Shop_15.Controllers
 
         public IActionResult Details(int id)
         {
+            List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
+            if(HttpContext.Session.Get<IEnumerable<ShoppingCart>>(ENV.SessionCart) != null && 
+                HttpContext.Session.Get<IEnumerable<ShoppingCart>>(ENV.SessionCart).Count() > 0)
+            {
+                shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(ENV.SessionCart);
+            }
+
             DetailsVM detailsVM = new DetailsVM()
             {
-                Product = _db.Product.Include(u => u.Category).Where(u => u.Id == id).FirstOrDefault()
+                Product = _db.Product.Include(u => u.Category).Where(u => u.Id == id).FirstOrDefault(),
+                InCart = false
             };
+
+            foreach(var item in shoppingCartList)
+            {
+                if(item.ProductId == id)
+                {
+                    detailsVM.InCart = true;
+                }
+            }
+
             return View(detailsVM);
+        }
+
+        [HttpPost, ActionName("Details")]
+        public IActionResult DetailsPost(int id)
+        {
+            List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
+            if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(ENV.SessionCart) != null &&
+                HttpContext.Session.Get<IEnumerable<ShoppingCart>>(ENV.SessionCart).Count() > 0)
+            {
+                shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(ENV.SessionCart);
+            }
+
+            shoppingCartList.Add(new ShoppingCart { ProductId = id });
+            HttpContext.Session.Set(ENV.SessionCart, shoppingCartList);
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Privacy()

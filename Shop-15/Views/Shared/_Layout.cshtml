@@ -33,7 +33,19 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
                         </li>
                         <li>
-
+                            @if(HttpContextAccessor.HttpContext.Session.Get<List<ShoppingCart>>(ENV.SessionCart) != null)
+                            {
+                                <a class="nav-link" asp-action="Index" asp-controller="Cart">
+                                    @{
+                                        var count = HttpContextAccessor.HttpContext.Session.Get<List<ShoppingCart>>(ENV.SessionCart).Count();
+                                    }
+                                    Cart &nbsp; (@count)
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="#" class="nav-link"> Cart &nbsp;(0)</a>
+                            }
                         </li>
                     </ul>
                 </div>
