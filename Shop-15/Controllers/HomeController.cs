@@ -76,6 +76,25 @@ namespace Shop_15.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public IActionResult RemoveFromCart(int id)
+        {
+            List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
+            if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(ENV.SessionCart) != null &&
+                HttpContext.Session.Get<IEnumerable<ShoppingCart>>(ENV.SessionCart).Count() > 0)
+            {
+                shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(ENV.SessionCart);
+            }
+
+            var removeItem = shoppingCartList.SingleOrDefault(u => u.ProductId == id);
+            if (removeItem != null)
+            {
+                shoppingCartList.Remove(removeItem);
+            }
+
+            HttpContext.Session.Set(ENV.SessionCart, shoppingCartList);
+            return RedirectToAction(nameof(Index));
+        }
+
         public IActionResult Privacy()
         {
             return View();
