@@ -33,7 +33,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
                         </li>
                         <li>
-                            @if(HttpContextAccessor.HttpContext.Session.Get<List<ShoppingCart>>(ENV.SessionCart) != null)
+                            @if (HttpContextAccessor.HttpContext.Session.Get<List<ShoppingCart>>(ENV.SessionCart) != null)
                             {
                                 <a class="nav-link" asp-action="Index" asp-controller="Cart">
                                     @{
@@ -50,6 +50,10 @@
                         <li>
                             <partial name="_LoginPartial" />
                         </li>
+                        @if (User.IsInRole(ENV.AdminRole))
+                        {
+                            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Create new admin</a>
+                        }
                     </ul>
                 </div>
             </div>
