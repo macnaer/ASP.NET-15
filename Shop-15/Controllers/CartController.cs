@@ -68,13 +68,28 @@ namespace Shop_15.Controllers
             List<int> productInCart = shoppingCartList.Select(i => i.ProductId).ToList();
             IEnumerable<Product> productList = _db.Product.Where(i => productInCart.Contains(i.Id));
 
-            ProductUserVM ProductUserVM  = new ProductUserVM()
+            ProductUserVM ProductUserVM = new ProductUserVM()
             {
                 AppUser = _db.AppUser.FirstOrDefault(i => i.Id == clime.Value),
                 ProductList = productList.ToList()
             };
 
             return View(ProductUserVM);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Order")]
+        public IActionResult OrderPost(ProductUserVM productUserVM)
+        {
+            // Send Email
+            return RedirectToAction(nameof(OrderConfirmation));
+        }
+
+        public IActionResult OrderConfirmation()
+        {
+            HttpContext.Session.Clear();
+            return View();
         }
     }
 }
