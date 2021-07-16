@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Shop_15.Data;
 using Shop_15.Models;
@@ -7,8 +9,10 @@ using Shop_15.Models.ViewModels;
 using Shop_15.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Shop_15.Controllers
@@ -17,10 +21,14 @@ namespace Shop_15.Controllers
     public class CartController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly IWebHostEnvironment _webHostEnvirinment;
+        private readonly IEmailSender _emailSender;
 
-        public CartController(ApplicationDbContext db)
+        public CartController(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment, IEmailSender emailSender)
         {
             _db = db;
+            _webHostEnvirinment = webHostEnvironment;
+            _emailSender = emailSender;
         }
 
         public IActionResult Index()
@@ -37,6 +45,14 @@ namespace Shop_15.Controllers
             IEnumerable<Product> productList = _db.Product.Where(i => productInCart.Contains(i.Id));
 
             return View(productList);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Index")]
+        public IActionResult IndexPost()
+        {
+            return RedirectToAction(nameof(Order));
         }
 
         public IActionResult Remove(int id)
@@ -80,10 +96,39 @@ namespace Shop_15.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Order")]
-        public IActionResult OrderPost(ProductUserVM productUserVM)
+        public async Task<IActionResult> OrderPost(ProductUserVM productUserVM)
         {
-            // Send Email
-            return RedirectToAction(nameof(OrderConfirmation));
+            var PathToTemplate = _webHostEnvirinment.WebRootPath + Path.DirectorySeparatorChar.ToString()
+                + "templates" +  Path.DirectorySeparatorChar.ToString()
+                + "OrderConfirmation.html";
+
+            var subject = "New order";
+            string HtmlBody = "";
+
+            using (StreamReader sr = System.IO.File.OpenText(PathToTemplate))
+            {
+                HtmlBody = sr.ReadToEnd();
+            }
+
+            StringBuilder productsSB = new StringBuilder();
+
+            foreach(var item in productUserVM.ProductList)
+            {
+                productsSB.Append($"Name {item.Name}\tPrice {item.Price}");
+            }
+
+            string messageBody = string.Format(
+                HtmlBody,
+                productUserVM.AppUser.FullName,
+                productUserVM.AppUser.Email,
+                productUserVM.AppUser.PhoneNumber,
+                productsSB.ToString()
+                );
+
+
+            await _emailSender.SendEmailAsync(ENV.AdminEmail, subject, messageBody);
+
+                return RedirectToAction(nameof(OrderConfirmation));
         }
 
         public IActionResult OrderConfirmation()
