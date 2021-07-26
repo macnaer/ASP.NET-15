@@ -41,7 +41,7 @@ pipeline  {
             steps {
                 echo " ============== Running playbook =================="
                 sh '''
-                ansible-playbook demloyToStageServer.yml
+                ansible-playbook ./demloyToStageServer.yml
                 '''
             }
         }
