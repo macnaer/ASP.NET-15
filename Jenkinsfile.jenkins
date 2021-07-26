@@ -15,7 +15,7 @@ pipeline  {
             steps {
                 echo 'Creating docker image ...'
                 dir('.'){
-                    sh "docker build -t macnaer/teamlab . "
+                    sh "docker build -t smastak/teamlab . "
                 }
             }
         }
