@@ -1,0 +1,24 @@
+- name: Pool TeamLab
+  hosts: staging
+  become: true
+  tasks:
+
+  - name: stop all docker containers
+    shell: docker stop $(docker ps -a -q)
+    ignore_errors: true
+
+  - name: remove all docker containers
+    shell: docker rm $(docker ps -a -q)
+    ignore_errors: true
+
+  - name: Remove image
+    docker_image:
+      name: smastak/teamlab
+      state: absent
+
+  - name: Pull image
+    docker_image:
+      name: smastak/teamlab
+
+  - name: Start smastak/teamlab
+    shell: docker run -d --restart=always -p 80:3000 -p 5000:5000 smastak/teamlab
