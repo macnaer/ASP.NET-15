@@ -33,7 +33,7 @@ pipeline  {
             steps {
                 echo " ============== pushing image =================="
                 sh '''
-                docker push smastak/teamlab:latest
+                docker push teamlab:latest
                 '''
             }
         }
