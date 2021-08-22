@@ -60,6 +60,4 @@ pipeline  {
                     docker run -d --restart=always --name shop -p 80:80 smastak/teamlab:latest
              }
         }
-    
-    }
 }
