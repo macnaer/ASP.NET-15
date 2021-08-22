@@ -44,9 +44,10 @@ pipeline  {
 
         stage("docker run") {
             steps {
-                echo " ============== starting chatterbox server =================="
+                echo " ============== starting shop server =================="
                 sh '''
                 docker run -d --restart=always --name shop -p 80:80 smastak/teamlab:latest
+                '''
             }
         }
         
