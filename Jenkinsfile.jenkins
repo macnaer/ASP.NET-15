@@ -37,14 +37,5 @@ pipeline  {
                 '''
             }
         }
-        stage("Deploy to stage server") {
-            steps {
-                echo " ============== Running playbook =================="
-                sh '''
-                ansible-playbook demloyToStageServer.yml
-                '''
-            }
-        }
-
-    }
+     }
 }
