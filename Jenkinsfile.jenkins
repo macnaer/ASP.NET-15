@@ -32,33 +32,33 @@ pipeline  {
         stage("docker push") {
             steps {
                 echo " ============== pushing image =================="
-                   sh '''
-                   docker push smastak/teamlab:latest
-                   '''
+                sh '''
+                docker push smastak/teamlab:latest
+                '''
             }
         }
         stage("docker stop") {
             steps {
                 echo " ============== stoping all images =================="
-                   sh ''' 
-                   docker stop shop
-                   '''
+                sh ''' 
+                docker stop shop
+                '''
             }
         }
         stage("docker remove") {
-             steps {
-                 echo " ============== removing all docker containers =================="
-                    sh '''
-                    docker rm shop
-                    '''
-             }
+            steps {
+                echo " ============== removing all docker containers =================="
+                sh '''
+                docker rm shop
+                '''
+            }
         }
         stage("docker run") {
-             steps {
-                 echo " ============== starting chatterbox server =================="
-                    sh '''
-                    docker run -d --restart=always --name shop -p 80:80 smastak/teamlab:latest
-             }
+            steps {
+                echo " ============== starting chatterbox server =================="
+                sh '''
+                docker run -d --restart=always --name shop -p 80:80 smastak/teamlab:latest
+            }
         }
-    }
+     }
 }
